@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 
+
 contract AutoPartNFT_Pro_V2 is ERC721URIStorage, AccessControl, ERC2981 {
     
     bytes32 public constant MANUFACTURER_ROLE = keccak256("MANUFACTURER_ROLE");
@@ -39,6 +40,12 @@ contract AutoPartNFT_Pro_V2 is ERC721URIStorage, AccessControl, ERC2981 {
         bool fulfilled;
     }
 
+    struct RETAILER{
+        string name;
+        address retailerAddress;
+        string locationOfretailer;
+    }
+
     mapping(uint256 => SupplyRequest) public supplyRequests;
     uint256 private _nextRequestId;
 
@@ -50,9 +57,13 @@ contract AutoPartNFT_Pro_V2 is ERC721URIStorage, AccessControl, ERC2981 {
     
     enum SaleStatus { UNSOLD, IN_TRANSIT, SOLD, RETURNED }
     mapping(uint256 => SaleStatus) public saleStatus;
+    
 
     mapping(uint256 => PartDetails) public parts;
     uint256 private _nextTokenId;
+
+
+    address[] Retailers;
 
     // ════════════════════════════════════════════════════════════
     // EVENTS
@@ -300,6 +311,7 @@ contract AutoPartNFT_Pro_V2 is ERC721URIStorage, AccessControl, ERC2981 {
     function safeTransferFrom(address, address, uint256, bytes memory) public pure override(ERC721, IERC721) {
         revert("Use soldToCustomer, transferToRetailer, or reportDefectiveReturn");
     }
+
 
     // ════════════════════════════════════════════════════════════
     // ROLE MANAGEMENT
