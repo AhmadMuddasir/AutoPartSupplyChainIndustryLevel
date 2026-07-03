@@ -18,6 +18,7 @@ contract AutoPartNFT_Pro_V3 is
 
     
     address[] public manufacturers;
+    address[] public retailerRequests;
     uint256 public constant  maxManufacturerCount = 10;
 
    
@@ -89,7 +90,7 @@ contract AutoPartNFT_Pro_V3 is
     struct RetailerDetails {
         string name;
         string location;
-        bool   isActive;
+        bool   isApprove;
     }
 
     mapping(uint256 => PartDetails)     public parts;
@@ -99,6 +100,7 @@ contract AutoPartNFT_Pro_V3 is
     mapping(uint256 => SupplyRequest) public supplyRequests;
     mapping(address => RetailerDetails) public retailerDetails;
     mapping(address => ManufacturerDetails) public manufacturerDetails;
+    
 
 
     uint256 private _nextTokenId;
@@ -159,7 +161,6 @@ function removeManufacturer(address manufacturer)
         string[] memory _name,
         string[] memory _location
         )
-        
          {
         uint256 count = manufacturers.length;
         _addresses = new address[](count);
@@ -176,8 +177,45 @@ function removeManufacturer(address manufacturer)
         }
         return (_addresses,_name,_location);
     }
+        function requestForRetailer(string memory _name,string memory _location) external {
+            require(!hasRole(RETAILER_ROLE, msg.sender), "Already retailer");
+            retailerDetails[msg.sender] = RetailerDetails({
+                name:_name,
+                location:_location,
+                isApprove:false
+            });
+            retailerRequests.push(msg.sender);
+        }
 
-    
+
+        function addRetailer(address retailer)
+        external onlyRole(MANUFACTURER_ROLE)
+    {
+        require(retailerDetails[retailer].isApprove == false,"retailer already added");
+        require(bytes(retailerDetails[retailer].name).length > 0,
+    "Retailer request not found");
+
+        _grantRole(RETAILER_ROLE, retailer);
+        string memory _name = retailerDetails[retailer].name;
+        string memory _location = retailerDetails[retailer].location;
+
+        retailerDetails[retailer] = RetailerDetails({ name: _name, location: _location, isApprove: true });
+    }
+
+    function removeRetailer(address retailer) external onlyRole(MANUFACTURER_ROLE) {
+        _revokeRole(RETAILER_ROLE, retailer);
+        retailerDetails[retailer].isApprove = false;
+    }
+
+    function getRetailerRequests()
+    external
+    view
+    returns (address[] memory)
+    {
+    return retailerRequests;
+    }
+
+   
 
 
     function createSupplyRequest(bytes32 _productHash, uint256 _quantity)
@@ -241,6 +279,7 @@ function removeManufacturer(address manufacturer)
         return tokenId;
     }
 
+
     function mintPartToRetailer(address retailer, string calldata uri, bytes32 metadataHash)
         public onlyRole(MANUFACTURER_ROLE) returns (uint256)
     {
@@ -278,7 +317,7 @@ function removeManufacturer(address manufacturer)
 
         partOwner[tokenId]    = customerPhoneNumber;
         nftCustodian[tokenId] = msg.sender;
-        saleStatus[tokenId]   = SaleStatus.IN_TRANSIT; // ✅ IN_TRANSIT is now used!
+        saleStatus[tokenId]   = SaleStatus.IN_TRANSIT; 
 
         emit PartShipped(tokenId, customerPhoneNumber, trackingNumber, block.timestamp);
     }
@@ -321,7 +360,7 @@ function removeManufacturer(address manufacturer)
         if (parts[tokenId].status != PartStatus.DEFECTIVE_RETURNED)       revert NotInDefectiveState();
         
         parts[tokenId].status = PartStatus.REPAIRED;
-        saleStatus[tokenId]   = SaleStatus.UNSOLD; // ✅ RESET so it can be sold again!
+        saleStatus[tokenId]   = SaleStatus.UNSOLD; 
         emit PartRepaired(tokenId, block.timestamp);
     }
 
@@ -330,7 +369,7 @@ function removeManufacturer(address manufacturer)
         if (parts[tokenId].status != PartStatus.DEFECTIVE_RETURNED)       revert NotInDefectiveState();
         
         parts[tokenId].status = PartStatus.REFURBISHED;
-        saleStatus[tokenId]   = SaleStatus.UNSOLD; // ✅ RESET so it can be sold again!
+        saleStatus[tokenId]   = SaleStatus.UNSOLD; 
         emit PartRefurbished(tokenId, block.timestamp);
     }
 
@@ -377,17 +416,7 @@ function removeManufacturer(address manufacturer)
     { revert TransferBlocked(); }
 
 
-    function addRetailer(address retailer, string memory _name, string memory _location)
-        external onlyRole(MANUFACTURER_ROLE)
-    {
-        _grantRole(RETAILER_ROLE, retailer);
-        retailerDetails[retailer] = RetailerDetails({ name: _name, location: _location, isActive: true });
-    }
 
-    function removeRetailer(address retailer) external onlyRole(MANUFACTURER_ROLE) {
-        _revokeRole(RETAILER_ROLE, retailer);
-        retailerDetails[retailer].isActive = false;
-    }
 
     function getAllRetailers() external view returns (
         address[] memory addresses,
@@ -406,7 +435,7 @@ function removeManufacturer(address manufacturer)
             addresses[i]    = r;
             names[i]        = retailerDetails[r].name;
             locations[i]    = retailerDetails[r].location;
-            activeStatus[i] = retailerDetails[r].isActive;
+            activeStatus[i] = retailerDetails[r].isApprove;
         }
     }
 
