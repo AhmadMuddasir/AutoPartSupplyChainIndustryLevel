@@ -121,7 +121,7 @@ contract AutoPartNFT_Pro_V3 is
     constructor() ERC721("Auto_Part", "APT") {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
-
+   
     function joinAsManufacturer(string memory _name,string memory _location) external {
         if (manufacturers.length >= maxManufacturerCount) revert ManufacturerRegistryIsFull();
         if (hasRole(MANUFACTURER_ROLE, msg.sender)) revert youAreAlreadyaManufacturer();
