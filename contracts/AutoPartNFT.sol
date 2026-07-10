@@ -33,7 +33,7 @@ contract AutoPartNFT_Pro_V3 is
     error ArrayLengthMismatch();
     error NotOwner();
     error OnlyRetailer();
-    error PhoneRequired();
+    error PhoneNumberRequired();
     error AlreadySold();
     error AlreadyShipped();
     error NotInTransit();
@@ -114,6 +114,7 @@ contract AutoPartNFT_Pro_V3 is
     event DefectiveReturned(uint256 indexed tokenId, address indexed retailer, uint256 timestamp);
     event PartRepaired(uint256 indexed tokenId, uint256 timestamp);
     event PartRefurbished(uint256 indexed tokenId, uint256 timestamp);
+    
     event PartRecalled(uint256 indexed tokenId, uint256 timestamp);
     event SupplyRequestCreated(uint256 indexed requestId, address indexed retailer, bytes32 productHash, uint256 quantity);
     event SupplyRequestFulfilled(uint256 indexed requestId, uint256[] tokenIds);
@@ -308,7 +309,7 @@ function removeManufacturer(address manufacturer)
     ) external {
         if (ownerOf(tokenId) != msg.sender)               revert NotOwner();
         if (!hasRole(RETAILER_ROLE, msg.sender))           revert OnlyRetailer();
-        if (bytes(customerPhoneNumber).length == 0)        revert PhoneRequired();
+        if (bytes(customerPhoneNumber).length == 0)        revert PhoneNumberRequired();
         if (saleStatus[tokenId] != SaleStatus.UNSOLD)     revert AlreadySold();
 
         PartStatus st = parts[tokenId].status;
