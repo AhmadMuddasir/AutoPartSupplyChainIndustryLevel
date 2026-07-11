@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-contract AutoPartNFT_Pro_V3 is
+contract AutoPartNFT_Pro is
     ERC721URIStorage,
     AccessControlEnumerable,
     ERC2981

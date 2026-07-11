@@ -1,7 +1,7 @@
-const hre = require("hardhat");
+const {ethers} = require("hardhat");
 
 async function main() {
-    const Contract = await hre.ethers.getContractFactory("AutoPartNFT_Pro_V3");
+    const Contract = await ethers.getContractFactory("AutoPartNFT_Pro");
 
     console.log("Deployment Bytecode:");
     console.log(Contract.bytecode);

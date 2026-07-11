@@ -2,17 +2,14 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { loadFixture } = require("@nomicfoundation/hardhat-toolbox/network-helpers");
 
-describe("AutoPartNFT_Pro_V3", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
+describe("AutoPartNFT_Pro", function () {
+
   async function deployContractFixture() {
     const [owner, manufacturer1, retailer1, customer1, otherAccount] = await ethers.getSigners();
 
     const Contract = await ethers.getContractFactory("AutoPartNFT_Pro_V3");
     const contract = await Contract.deploy();
 
-    // Common mock data
     const mockHash = ethers.id("mockProductData");
     const mockUri = "ipfs://mockURI";
 
@@ -63,16 +60,13 @@ describe("AutoPartNFT_Pro_V3", function () {
     it("Should allow an address to request to be a retailer and a manufacturer to approve it", async function () {
       const { contract, manufacturer1, retailer1 } = await loadFixture(deployContractFixture);
       
-      // Setup manufacturer
       await contract.connect(manufacturer1).joinAsManufacturer("Acme Corp", "Detroit");
 
-      // Request retailer
       await contract.connect(retailer1).requestForRetailer("AutoParts R Us", "New York");
       
       const requests = await contract.getRetailerRequests();
       expect(requests).to.include(retailer1.address);
 
-      // Approve retailer
       await contract.connect(manufacturer1).addRetailer(retailer1.address);
       
       const retailerRole = await contract.RETAILER_ROLE();
@@ -95,13 +89,11 @@ describe("AutoPartNFT_Pro_V3", function () {
     it("Should create and fulfill a supply request", async function () {
       const { contract, manufacturer1, retailer1, mockHash, mockUri } = await loadFixture(setupRolesFixture);
       
-      // Retailer creates request
       const quantity = 2;
       await expect(contract.connect(retailer1).createSupplyRequest(mockHash, quantity))
         .to.emit(contract, "SupplyRequestCreated");
 
-      // Manufacturer fulfills
-      // The first request has ID 0
+
       const requestId = 0;
       await expect(
         contract.connect(manufacturer1).fulfillSupplyRequest(
@@ -111,19 +103,17 @@ describe("AutoPartNFT_Pro_V3", function () {
         )
       ).to.emit(contract, "SupplyRequestFulfilled");
 
-      // Check part details
-      const tokenId = 0; // First minted token
+      const tokenId = 0; 
       const custodian = await contract.getNFTCustodian(tokenId);
       expect(custodian).to.equal(retailer1.address);
       
       const status = await contract.getSaleStatus(tokenId);
-      expect(status).to.equal(0); // SaleStatus.UNSOLD
+      expect(status).to.equal(0);
     });
 
     it("Should ship a part and confirm delivery", async function () {
       const { contract, manufacturer1, retailer1, mockHash, mockUri } = await loadFixture(setupRolesFixture);
       
-      // Directly mint to retailer for testing speed
       await contract.connect(manufacturer1).mintPartToRetailer(retailer1.address, mockUri, mockHash);
       const tokenId = 0;
 
@@ -132,17 +122,16 @@ describe("AutoPartNFT_Pro_V3", function () {
       const tracking = "TRACK123";
       await expect(contract.connect(retailer1).shipPart(tokenId, phone, tracking))
         .to.emit(contract, "PartShipped")
-        .withArgs(tokenId, phone, tracking, /* ignore timestamp */ (val) => true);
+        .withArgs(tokenId, phone, tracking,  (val) => true);
 
       let status = await contract.getSaleStatus(tokenId);
-      expect(status).to.equal(1); // IN_TRANSIT
+      expect(status).to.equal(1);
 
-      // Confirm delivery
       await expect(contract.connect(retailer1).confirmDelivery(tokenId))
         .to.emit(contract, "DeliveryConfirmed");
 
       status = await contract.getSaleStatus(tokenId);
-      expect(status).to.equal(2); // SOLD
+      expect(status).to.equal(2); 
       
       const recordedPhone = await contract.getCustomerPhoneNumber(tokenId);
       expect(recordedPhone).to.equal(phone);
@@ -159,7 +148,6 @@ describe("AutoPartNFT_Pro_V3", function () {
 
       await contract.connect(manufacturer1).mintPartToRetailer(retailer1.address, mockUri, mockHash);
       
-      // Attempt manual transfer
       await expect(
         contract.connect(retailer1).transferFrom(retailer1.address, otherAccount.address, 0)
       ).to.be.revertedWithCustomError(contract, "TransferBlocked");
