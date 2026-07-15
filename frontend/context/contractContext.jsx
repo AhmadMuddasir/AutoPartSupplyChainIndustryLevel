@@ -53,6 +53,10 @@ export const ContractProvider = ({children})=>{
           }
           return new ethers.BrowserProvider(window.ethereum);
      }
+     const getReadContract =async ()=>{
+          const provider = getReadOnlyProvider();
+          return new ethers.Contract() 
+     }
 
      // manufaturer
      const joinAsManufacturer  = async(name,location)=>{
@@ -78,8 +82,12 @@ export const ContractProvider = ({children})=>{
           const tnx = await contract.fulfillSupplyRequest(requestId,uris,metadataHashed);
           return await tnx.wait();
      }
-     const repairPart = async()=>{
-          
+     const repairPart = async(tokenId)=>{
+          if(!contract) throw new Error("Contract not initaialize");
+          const tnx = await contract.repairPart(tokenId);
+          return await tnx.wait();
+
+
      }
      const refurbishedPart = async(tokenId)=>{
           if(!contract) throw new Error("Contract not initaialize");
@@ -98,8 +106,103 @@ export const ContractProvider = ({children})=>{
           return await tnx.wait();
      }
 
+     //retailer part
+
+     const requestForRetailer = async(name,location)=>{
+          if(!contract) throw new Error("Contract not initaialize");
+          const tnx = await contract.requestForRetailer(name,location);
+          return await tnx.wait();
+
+
+     }
+     const createSupplyRequest = async(productHash,quantity)=>{
+          if(!contract) throw new Error("Contract not initailize");
+          const tnx = await contract.createSupplyRequest(productHash,quantity);
+          return await tnx.wait();
+     }
+     const shipPart = async(tokenId,PhoneNumber,trackingId)=>{
+          if(!contract) throw new Error("Contract not initailaze");
+          const tnx = await contract.shipPart(tokenId,PhoneNumber,trackingId);
+          return await tnx.wait();
+     }
+     const confirmDelivery = async(tokenId)=>{
+          if(!contract) throw new Error("Contract not initailaze");
+          const tnx = await contract.confirmDelivery(tokenId);
+          return await tnx.wait();
+
+     }
+     const reportDefectiveReturn = async(tokenId)=>{
+          if(!contract) throw new Error("Contract not initailaze");
+          const tnx = await contract.reportDefectiveReturn(tokenId);
+          return await tnx.wait();
+     }
+
+     // read functions
+
+     const getAllManufacturers = async()=>{
+         return await getReadContract().getAllManufacturers();
+     }
+
+     const getAllRetailers = async()=>{
+          return await getReadContract().getAllRetailers();
+     }
+
+     const getCustomerPhoneNumber = async(tokenId)=>{
+          return await getReadContract.getCustomerPhoneNumber(tokenId);
+     }
+
+
+     const getNFTCustodian = async(tokenId) =>{
+          return await getReadContract.getNFTCustodian(tokenId);
+     }
+     const getSaleStatus = async(tokenId) =>{
+          return await getReadContract.getSaleStatus(tokenId);
+     }
+     const verifyPartAuthenticity  = async(tokenId) =>{
+          return await getReadContract.verifyPartAuthenticity(tokenId);
+     }
+
+     const value = {
+          address,
+          isConnected,
+          signer,
+          provider,
+          contract,
+          joinAsManufacturer,
+          addRetailer,
+          removeRetailer,
+          fullfillSupplyRequest,
+          repairPart,
+          refurbishedPart,
+          recallPart,
+          transferToRetailer,
+          requestForRetailer,
+          createSupplyRequest,
+          shipPart,
+          confirmDelivery,
+          reportDefectiveReturn,
+          getAllManufacturers,
+          getAllRetailers,
+          getCustomerPhoneNumber,
+          getNFTCustodian,
+          getSaleStatus,
+          verifyPartAuthenticity
+     }
+
+     return(
+          <ContractContext.Provider value={value}>
+               {children}
+          </ContractContext.Provider>
+     )
 
      
+     
+}
 
-
+export const useContract = ()=>{
+     const context = useContext(ContractContext);
+     if(!contract){
+          throw new Error("useContract error");
+     }
+     return context;
 }
