@@ -1,13 +1,17 @@
-import { createConfig } from "wagmi";
+import {http} from "wagmi";
 import { sepolia,mainnet } from "viem/chains";
-import { metaMask,injected } from "wagmi/connectors";
-
-export const config = createConfig({
+import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+ console.log("sepolia URL",process.env.SEPOLIA_RPC_URL);
+export const config = getDefaultConfig({
+    
+     appName: "AutoPartNFT",
+     projectId: "edd6de4c03f672db2b2f54f1367c562f",
      chains:[sepolia,mainnet],
-     connectors:[injected(),metaMask()],
      ssr: true,
      transports:{
-          [sepolia.id]:http(),
-          [mainnet.id]:http(),
+          [sepolia.id]:http("https://eth-sepolia.g.alchemy.com/v2/eRgV0M6z4uBDs20u3ut3wXdnbrAHlfQi"),
+          [mainnet.id]:http("https://eth-mainnet.g.alchemy.com/v2/pYP_63H4Qd1sC6Sixh5RPFw9r7P3jDn_"),
      }
 })
+
+

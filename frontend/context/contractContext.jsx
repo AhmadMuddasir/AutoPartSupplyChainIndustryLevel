@@ -1,13 +1,13 @@
 'use client'
 import { useState,useEffect,createContext,useContext } from "react";
 import { ethers } from "ethers";
-import { useConnection } from "wagmi";
+import { useAccount } from "wagmi";
 import { ABI, ContractAddress } from "@/lib/contract/constans";
 
 const ContractContext = createContext(null);
 
 export const ContractProvider = ({children})=>{
-     const {address,isConnected} = useConnection();
+     const {address,isConnected} = useAccount();
      const [signer,setSigner] = useState(null);
      const [provider,setProvider] = useState(null);
      const [contract,setContract] = useState(null);
@@ -201,8 +201,5 @@ export const ContractProvider = ({children})=>{
 
 export const useContract = ()=>{
      const context = useContext(ContractContext);
-     if(!contract){
-          throw new Error("useContract error");
-     }
      return context;
 }

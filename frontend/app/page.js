@@ -1,10 +1,12 @@
-import Image from "next/image";
+"use client";
 
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Home() {
   return (
-    <div >
-        AutoPartNFT
+    <div>
+      <h1>AutoPartNFT</h1>
+      <ConnectButton />
     </div>
   );
 }
