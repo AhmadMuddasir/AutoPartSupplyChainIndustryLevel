@@ -17,11 +17,10 @@ export const ContractProvider = ({children})=>{
                throw new Error("metamask or wallet not detected");
           }
           const provider = new ethers.BrowserProvider(window.ethereum);
-          const  signer = provider.getSigner();
-          const contract = new ethers.Contract(ContractAddress,ABI,signer);
+          const  signer =await  provider.getSigner();
+          const contract = new ethers.Contract(ContractAddress,ABI.abi,signer);
           console.log("provider:",provider);
           console.log("signer:",signer);
-          console.log("contract:",contract);
 
           return { signer, provider, contract };
      }
@@ -29,11 +28,13 @@ export const ContractProvider = ({children})=>{
      useEffect(()=>{
           const loadData = async()=>{
                if(isConnected && address){
-               try {               
+               try {   console.log("load entered")            
                          const { signer, provider, contract } = await getSignerAndContract();
                          setSigner(signer);
                          setContract(contract);
                          setProvider(provider)
+                         console.log("contract details",contract);
+                         console.log("contract SIGNER",signer);
                          } catch (error) {
                     console.log(error);
                }
@@ -60,6 +61,7 @@ export const ContractProvider = ({children})=>{
 
      // manufaturer
      const joinAsManufacturer  = async(name,location)=>{
+          console.log("entered this function")
           if(!contract) throw new Error("Contract not initaialize");
           const tnx = await contract.joinAsManufacturer(name,location)
           return await tnx.wait();

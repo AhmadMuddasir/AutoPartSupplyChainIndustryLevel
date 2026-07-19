@@ -1,7 +1,6 @@
 import {http} from "wagmi";
 import { sepolia,mainnet } from "viem/chains";
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
- console.log("sepolia URL",process.env.SEPOLIA_RPC_URL);
 export const config = getDefaultConfig({
     
      appName: "AutoPartNFT",
