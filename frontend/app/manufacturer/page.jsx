@@ -32,7 +32,6 @@ const Page = () => {
           <span className="h-1.5 w-1.5 rounded-full bg-[#8FA88A]" />
           Manufacturer Access
         </span>
-        <p></p>
 
         <h1 className="mt-6 text-3xl font-bold text-white">
           Get Access to Join as Manufacturer
