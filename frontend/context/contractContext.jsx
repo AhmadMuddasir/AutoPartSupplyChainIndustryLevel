@@ -11,6 +11,7 @@ export const ContractProvider = ({children})=>{
      const [signer,setSigner] = useState(null);
      const [provider,setProvider] = useState(null);
      const [contract,setContract] = useState(null);
+     const [requestNotification,setrequestNotification] = useState(0);
 
      const getSignerAndContract = async()=>{
           if(typeof window === "undefined" || !window.ethereum){
@@ -21,6 +22,7 @@ export const ContractProvider = ({children})=>{
           const contract = new ethers.Contract(ContractAddress,ABI.abi,signer);
           console.log("provider:",provider);
           console.log("signer:",signer);
+          console.log("contract:",contract);
 
           return { signer, provider, contract };
      }
@@ -48,20 +50,11 @@ export const ContractProvider = ({children})=>{
           loadData();
      },[isConnected,address]);
 
-     const getReadOnlyProvider  = ()=>{
-          if(typeof window === 'undefined' || !window.ethereum){
-               throw new Error("metamask or wallet not detected");
-          }
-          return new ethers.BrowserProvider(window.ethereum);
-     }
-     const getReadContract =async ()=>{
-          const provider = getReadOnlyProvider();
-          return new ethers.Contract() 
-     }
+
 
      // manufaturer
      const joinAsManufacturer  = async(name,location)=>{
-          console.log("entered this function")
+          
           if(!contract) throw new Error("Contract not initaialize");
           const tnx = await contract.joinAsManufacturer(name,location)
           return await tnx.wait();
@@ -113,8 +106,8 @@ export const ContractProvider = ({children})=>{
      const requestForRetailer = async(name,location)=>{
           if(!contract) throw new Error("Contract not initaialize");
           const tnx = await contract.requestForRetailer(name,location);
+          setrequestNotification((prev)=>prev+1);
           return await tnx.wait();
-
 
      }
      const createSupplyRequest = async(productHash,quantity)=>{
@@ -142,26 +135,28 @@ export const ContractProvider = ({children})=>{
      // read functions
 
      const getAllManufacturers = async()=>{
-         return await getReadContract().getAllManufacturers();
+          console.log("2");
+         return await contract.getAllManufacturers();
+         
      }
 
      const getAllRetailers = async()=>{
-          return await getReadContract().getAllRetailers();
+          return await contract.getAllRetailers();
      }
 
      const getCustomerPhoneNumber = async(tokenId)=>{
-          return await getReadContract.getCustomerPhoneNumber(tokenId);
+          return await contract.getCustomerPhoneNumber(tokenId);
      }
 
 
      const getNFTCustodian = async(tokenId) =>{
-          return await getReadContract.getNFTCustodian(tokenId);
+          return await contract.getNFTCustodian(tokenId);
      }
      const getSaleStatus = async(tokenId) =>{
-          return await getReadContract.getSaleStatus(tokenId);
+          return await contract.getSaleStatus(tokenId);
      }
      const verifyPartAuthenticity  = async(tokenId) =>{
-          return await getReadContract.verifyPartAuthenticity(tokenId);
+          return await contract.verifyPartAuthenticity(tokenId);
      }
 
      const value = {
@@ -188,7 +183,8 @@ export const ContractProvider = ({children})=>{
           getCustomerPhoneNumber,
           getNFTCustodian,
           getSaleStatus,
-          verifyPartAuthenticity
+          verifyPartAuthenticity,
+          requestNotification
      }
 
      return(

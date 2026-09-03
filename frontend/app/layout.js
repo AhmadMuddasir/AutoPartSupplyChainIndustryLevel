@@ -12,9 +12,9 @@ export default function RootLayout({ children }) {
       <body className="min-h-full flex flex-col">
         <main>
           <Providers>
-            <Navbar/>
+            <Navbar />
             <main>{children}</main>
-            </Providers>
+          </Providers>
         </main>
       </body>
     </html>

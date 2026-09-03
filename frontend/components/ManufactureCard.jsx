@@ -23,8 +23,8 @@ const ManufactureCard = ({title,description,fields,onSubmit}) => {
                toast.success("transaction Confirmed",{id:toastId});
                setValues({});
                setIsOpen(false);
-          } catch (error) {
-               console.log(error);
+          } catch (err) {
+               console.log(err);
                toast.error(err?.reason || err?.message || "Transaction failed.", { id: toastId });          
           }finally{
                setIsSubmitting(false);
@@ -50,7 +50,7 @@ const ManufactureCard = ({title,description,fields,onSubmit}) => {
      </button>
      {isOpen && (
           <form onSubmit={handleSubmit}  className="border-t border-[#4A5D48] px-5 py-4 space-y-3">
-               {fields.map((field)=>{
+               {fields.map((field)=>(
                     <input 
                     key={field.name}
                     type = {field.type === "number" ? "number" : "text"}
@@ -59,9 +59,8 @@ const ManufactureCard = ({title,description,fields,onSubmit}) => {
                     onChange={(e)=>handleChange(field.name,e.target.value)}
                     required
                     className="w-full rounded-md border border-[#4A5D48] bg-[#1C2620] px-3 py-2 text-sm text-white placeholder-white/30 outline-none focus:border-[#8FA88A]"
-
                     />
-               })}
+               ))}
                <button
                type="submit"
                disabled={isSubmitting}
