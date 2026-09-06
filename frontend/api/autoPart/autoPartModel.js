@@ -27,7 +27,15 @@ const autoPartSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["engine", "brake", "suspension", "electrical", "body", "interior", "other"],
+      enum: [
+        "engine",
+        "brake",
+        "suspension",
+        "electrical",
+        "body",
+        "interior",
+        "other",
+      ],
       default: "other",
     },
     image: {
@@ -99,44 +107,16 @@ const autoPartSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-autoPartSchema.index({ partName: "text", partNumber: "text", brandName: "text" });
-
-autoPartSchema.pre("save", async function (next) {
-  if (!this.tokenURI && !this.metadataHash) {
-    try {
-      const metadata = {
-        name: this.partName,
-        partNumber: this.partNumber,
-        brandName: this.brandName,
-        description: this.description || "",
-        category: this.category || "other",
-        image: this.image.url,
-        createdBy: this.createdBy?.address || "",
-        createdAt: new Date().toISOString(),
-      };
-
-      const pinataUtils = await import("../config/pinata.js");
-      const cid = await pinataUtils.default.uploadJSON(metadata);
-      this.metadataCid = cid;
-      this.tokenURI = `ipfs://${cid}`;
-
-      const { ethers } = await import("ethers");
-      this.metadataHash = ethers.keccak256(
-        ethers.toUtf8String(JSON.stringify(metadata))
-      );
-
-      this.thumbnail = this.image.url;
-
-    } catch (error) {
-      console.error("Metadata generation failed:", error);
-      return next(error);
-    }
-  }
-  next();
+autoPartSchema.index({
+  partName: "text",
+  partNumber: "text",
+  brandName: "text",
 });
+
+
 
 autoPartSchema.virtual("isInStock").get(function () {
   return this.quantity > 0;

@@ -13,14 +13,14 @@ import {
 
 const router = express.Router();
 
+router.get("/token/:tokenId", getAutoPartByTokenId);
+router.post("/sync/:tokenId", syncPartWithBlockchain);
+
 router.get("/", getAllAutoParts);
 router.get("/:id", getAutoPart);
-router.get("/token/:tokenId", getAutoPartByTokenId);
-
 router.post("/createautoParts", createautoPart);
 router.patch("/:id", updateAutoPart);
 router.delete("/:id", deleteAutoPart);
 router.post("/mint", mintAutoPart);
-router.post("sync/:tokenId", syncPartWithBlockchain);
 
 export default router;

@@ -1,6 +1,6 @@
 import AutoPart from "./autoPartModel.js";
 import { ethers } from "ethers";
-import contractArtifact from "../contractABI/AutoPartNFT_Pro_.json" with { type: "json" };
+import ABI from "../contractABI/AutoPartNFT_Pro_.json" with { type: "json" };
 import { config } from "../config/config.js";
 
 const getContract = async () => {
@@ -17,7 +17,6 @@ export const createautoPart = async (req, res, next) => {
   try {
     const autoPart = await AutoPart.create({
       ...req.body,
-      contractAddress: config.contractAddress,
       createdBy: {
         address: req.walletAddress,
         role: "manufacturer",
@@ -76,7 +75,10 @@ export const getAllAutoParts = async (req, res, next) => {
 
 export const getAutoPart = async (req, res, next) => {
   try {
-    const autoPart = await AutoPart.findById(req.params.id);
+    const autoPart = await AutoPart.findOne({
+      _id: req.params.id,
+      isActive: true,
+    });
     if (!autoPart) {
       return res.status(404).json({
         status: "error",
@@ -97,7 +99,10 @@ export const getAutoPart = async (req, res, next) => {
 
 export const getAutoPartByTokenId = async (req, res) => {
   try {
-    const autoPart = await AutoPart.findOne({ tokenId: req.params.tokenId });
+    const autoPart = await AutoPart.findOne({
+      tokenId: req.params.tokenId,
+      isActive: true,
+    });
 
     if (!autoPart) {
       return res.status(404).json({
@@ -120,10 +125,11 @@ export const getAutoPartByTokenId = async (req, res) => {
 
 export const updateAutoPart = async (req, res) => {
   try {
-    const autoPart = await AutoPart.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const autoPart = await AutoPart.findOneAndUpdate(
+      {_id:req.params.id,isActive:true},
+      req.body,
+      {new:true,runValidators:true}  
+    );
 
     if (!autoPart) {
       return res.status(404).json({
